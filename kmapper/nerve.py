@@ -70,6 +70,11 @@ class SimplicialNerve(Nerve):
 
     Warning: Not implemented yet.
     """
+    def __init__(self, min_intersection=1):
+        self.min_intersection = min_intersection
 
+    def __repr__(self):
+        return "SimplicialNerve(min_intersection={})".format(self.min_intersection)
+        
     def compute(self, nodes, links=None):
         pass
