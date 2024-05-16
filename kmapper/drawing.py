@@ -47,9 +47,9 @@ def draw_matplotlib(g, ax=None, fig=None, layout="kk"):
     # https://stackoverflow.com/a/50089385/5917194
     import matplotlib as mpl
 
-    if os.environ.get("DISPLAY", "") == "":
-        print("no display found. Using non-interactive Agg backend")
-        mpl.use("Agg")
+    # if os.environ.get("DISPLAY", "") == "":
+    #     print("no display found. Using non-interactive Agg backend")
+    #     mpl.use("Agg")
 
     import matplotlib.pyplot as plt
 
