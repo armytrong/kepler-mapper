@@ -1,7 +1,7 @@
 import itertools
 from collections import defaultdict
 
-__all__ = ["GraphNerve"]
+__all__ = ["GraphNerve", "SimplicialNerve"]
 
 
 class Nerve:
@@ -70,11 +70,26 @@ class SimplicialNerve(Nerve):
 
     Warning: Not implemented yet.
     """
-    def __init__(self, min_intersection=1):
+    def __init__(self, min_intersection=1, max_dimension=1):
         self.min_intersection = min_intersection
+        self.max_dimension = max_dimension
 
     def __repr__(self):
         return "SimplicialNerve(min_intersection={})".format(self.min_intersection)
         
     def compute(self, nodes, links=None):
-        pass
+        result = defaultdict(list)
+        simplices = [[n] for n in nodes]
+        for simplicial_dimension in range (1, self.max_dimension+1):
+            simplex_num_nodes = simplicial_dimension + 1
+            candidates = itertools.combinations(nodes.keys(), simplex_num_nodes)
+            for candidate in candidates:
+                intersection = set(nodes[candidate[0]])
+                for i in range(1,simplex_num_nodes):
+                    intersection = intersection.intersection(nodes[candidate[i]])
+                if(len(intersection) >= self.min_intersection):
+                    if(simplicial_dimension == 1):
+                        result[candidate[0]].append(candidate[1])
+
+                    simplices.append(candidate)
+        return result, simplices
