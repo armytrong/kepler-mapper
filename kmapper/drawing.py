@@ -9,7 +9,7 @@ import numpy as np
 __all__ = ["draw_matplotlib"]
 
 
-def draw_matplotlib(g, ax=None, fig=None, layout="kk"):
+def draw_matplotlib(g, simplices=None, ax=None, fig=None, layout="kk"):
     """Draw the graph using NetworkX drawing functionality.
 
     Parameters
@@ -55,7 +55,7 @@ def draw_matplotlib(g, ax=None, fig=None, layout="kk"):
 
     fig = fig if fig else plt.figure()
     ax = ax if ax else plt.gca()
-
+    
     if not isinstance(g, nx.Graph):
         from .adapter import to_networkx
 
@@ -84,6 +84,12 @@ def draw_matplotlib(g, ax=None, fig=None, layout="kk"):
     pos = layouts[layout](g)
 
     nodes = nx.draw_networkx_nodes(g, node_size=node_size, pos=pos, ax=ax)
+    if simplices:
+        for simplex in simplices:
+            if len(simplex) != 3: continue
+            print(simplex)    
+            coordinates = [pos[x] for x in simplex]
+            ax.fill([coordinates[0][0],coordinates[1][0], coordinates[2][0]],[coordinates[0][1],coordinates[1][1], coordinates[2][1]],facecolor="salmon")
     edges = nx.draw_networkx_edges(g, pos=pos, ax=ax)
     nodes.set_edgecolor("w")
     nodes.set_linewidth(node_edge)
