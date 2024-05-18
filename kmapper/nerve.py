@@ -68,28 +68,67 @@ class GraphNerve(Nerve):
 class SimplicialNerve(Nerve):
     """Creates the entire Cech complex of the covering defined by the nodes.
 
-    Warning: Not implemented yet.
+    Parameters
+    -----------
+
+    min_intersection: int, default is 1
+        Minimum intersection considered when computing the nerve. An edge will be created only when the intersection between two nodes is greater than or equal to `min_intersection`   
+
+    max_dimension: int, default is 1
+        Maximum dimension of simplicies generated. A simplex will only be created if it has dimension less than or equal to `max_dimension`
+
     """
     def __init__(self, min_intersection=1, max_dimension=1):
         self.min_intersection = min_intersection
         self.max_dimension = max_dimension
 
     def __repr__(self):
-        return "SimplicialNerve(min_intersection={})".format(self.min_intersection)
-        
-    def compute(self, nodes, links=None):
-        result = defaultdict(list)
-        simplices = [[n] for n in nodes]
-        for simplicial_dimension in range (1, self.max_dimension+1):
-            simplex_num_nodes = simplicial_dimension + 1
-            candidates = itertools.combinations(nodes.keys(), simplex_num_nodes)
-            for candidate in candidates:
-                intersection = set(nodes[candidate[0]])
-                for i in range(1,simplex_num_nodes):
-                    intersection = intersection.intersection(nodes[candidate[i]])
-                if(len(intersection) >= self.min_intersection):
-                    if(simplicial_dimension == 1):
-                        result[candidate[0]].append(candidate[1])
+        return "SimplicialNerve(min_intersection={}, max_dimension={})".format(self.min_intersection, self.max_dimension)
+    
+    def _compute_cluster_intersection(self, nodes: dict, clusters: list):
+        intersection = set(nodes[clusters[0]])
+        for i in range(1,len(clusters)):
+            intersection = intersection.intersection(nodes[clusters[i]])
+        return intersection
 
-                    simplices.append(candidate)
-        return result, simplices
+    def _compute_n_dimensional_simplices(self, dimension: int, nodes: dict):
+        simplices = []
+        num_simplex_nodes = dimension + 1
+        candidates = itertools.combinations(nodes.keys(), num_simplex_nodes)
+        for candidate in candidates:
+            intersection = self._compute_cluster_intersection(nodes, candidate)
+            if(len(intersection) >= self.min_intersection):
+                simplices.append(candidate)
+                
+        return simplices
+
+    def compute(self, nodes: dict):
+        """Helper function to find edges of the overlapping clusters.
+        Parameters
+        ----------
+        nodes:
+            A dictionary with entires `{node id}:{list of ids in node}`
+
+        Returns
+        -------
+        edges:
+            A 1-skeleton of the nerve (intersecting  nodes)
+
+        simplicies:
+            Complete list of simplices
+
+
+        """
+        links = defaultdict(list)
+        simplices = [[n] for n in nodes]
+
+        # Sample candidates for each desired simplicial dimension        
+        for simplicial_dimension in range (1, self.max_dimension+1):
+
+            n_simplices = self._compute_n_dimensional_simplices(simplicial_dimension, nodes)
+            simplices += n_simplices
+            if(simplicial_dimension == 1):
+                for edge in n_simplices:
+                    links[edge[0]].append(edge[1])
+        return links, simplices
+
