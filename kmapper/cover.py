@@ -270,7 +270,7 @@ class Cover:
         ]
 
         # Clean out any empty cubes (common in high dimensions)
-        hypercubes = [cube for cube in hypercubes if len(cube)]
+        hypercubes = [cube for cube in hypercubes]
         return hypercubes
 
     def fit_transform(self, data):
